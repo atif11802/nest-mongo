@@ -4,6 +4,7 @@ import {
   Body,
   ValidationPipe,
   UsePipes,
+  Redirect,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from './dto';

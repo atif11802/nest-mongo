@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UserDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,24 +10,22 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private User: Model<User>,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
 
   async register(user: UserDto) {
     try {
-      const existUser = await this.userModel.findOne({ email: user.email });
+      const existUser = await this.User.findOne({ email: user.email });
 
       if (existUser) {
-        return {
-          error: 'User already exists',
-        };
+        throw new HttpException('User already exist', HttpStatus.FORBIDDEN);
       }
 
       const hashedPassword = await bcrypt.hash(user.password, 10);
 
-      const newUser = new this.userModel({
+      const newUser = new this.User({
         email: user.email,
         password: hashedPassword,
       });
@@ -41,15 +39,19 @@ export class AuthService {
         accessToken: await this.generateToken(savedUser),
       };
     } catch (error) {
-      return {
-        message: error.message,
-      };
+      throw new HttpException(
+        {
+          status: error.status,
+          error: error.message,
+        },
+        error.status,
+      );
     }
   }
 
   async login(user: UserDto) {
     try {
-      const existUser = await this.userModel.findOne({ email: user.email });
+      const existUser = await this.User.findOne({ email: user.email });
 
       if (!existUser) {
         throw new Error('User not found');
@@ -79,11 +81,11 @@ export class AuthService {
 
   async generateToken(user: any) {
     const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload, {
-        expiresIn: '15m',
-        secret: this.config.get('JWT_SECRET'),
-      }),
-    };
+
+    const access_token = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+      secret: this.config.get('JWT_SECRET'),
+    });
+    return access_token;
   }
 }

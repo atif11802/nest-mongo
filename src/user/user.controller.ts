@@ -1,15 +1,25 @@
-import { Body, Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Get, UseGuards, Param } from '@nestjs/common';
+import { GetUser } from 'src/auth/decorator';
+import { JwtGuard } from 'src/auth/guard';
+import { UserService } from './user.service';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UserController {
+  constructor(private userService: UserService) {}
+
   @Get('me')
-  async me(@Req() req: any) {
-    console.log(req.user);
-    return {
-      name: 'John Doe',
-      email: '',
-    };
+  async me(@GetUser() user: any) {
+    return user;
+  }
+
+  @Get('me*w')
+  async getCombination() {
+    return 'meow';
+  }
+
+  @Get(':id')
+  findOne(@Param() params): any {
+    return this.userService.findById();
   }
 }
