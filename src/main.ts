@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import config from './config/configuration';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,6 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(8000);
+  await app.listen(config().PORT);
 }
 bootstrap();
