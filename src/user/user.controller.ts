@@ -18,8 +18,8 @@ export class UserController {
     return 'meow';
   }
 
-  @Get(':id')
-  findOne(@Param() params): any {
-    return this.userService.findById();
-  }
+  // @Get(':id')
+  // findOne(@Param() params): any {
+  //   return this.userService.findById();
+  // }
 }

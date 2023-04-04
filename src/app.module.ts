@@ -6,18 +6,22 @@ import { UserModule } from './user/user.module';
 import { CatModule } from './cat/cat.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import config from './config/configuration';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [config],
     }),
     AuthModule,
     UserModule,
     CatModule,
-    MongooseModule.forRoot('mongodb://127.0.0.1/mewcat'),
+
+    // MongooseModule.forRoot('mongodb://127.0.0.1/mewcat'),
     //bring env with config module
+    MongooseModule.forRoot(config().DB_URI),
   ],
   controllers: [AppController],
   providers: [AppService],
