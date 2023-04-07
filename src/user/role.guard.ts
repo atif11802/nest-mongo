@@ -20,8 +20,6 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    console.log('requiredRoles', requiredRoles);
-
     if (!requiredRoles) {
       return true;
     }
@@ -38,17 +36,11 @@ export class RolesGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      console.log('payload', payload.role);
 
       return requiredRoles.some((role) => payload.role === role);
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
-
-    //does the current user  have the required role
-
-    return false;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
