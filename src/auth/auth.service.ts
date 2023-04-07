@@ -82,10 +82,14 @@ export class AuthService {
   async generateToken(user: any) {
     const payload = { email: user.email, sub: user.id };
 
-    const access_token = this.jwtService.sign(payload, {
-      expiresIn: '15m',
-      secret: this.config.get('JWT_SECRET'),
-    });
+    const access_token = this.jwtService.sign(
+      { ...payload, role: 'Admin' },
+      {
+        //expiresIn: 1 hour
+        expiresIn: 3600,
+        secret: this.config.get('JWT_SECRET'),
+      },
+    );
     return access_token;
   }
 }
