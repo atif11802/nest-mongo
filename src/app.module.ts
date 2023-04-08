@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import config from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './user/role.guard';
+import { User, UserSchema } from './model/user.schema';
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import { RolesGuard } from './user/role.guard';
     // MongooseModule.forRoot('mongodb://127.0.0.1/mewcat'),
     //bring env with config module
     MongooseModule.forRoot(config().DB_URI),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AppController],
   providers: [

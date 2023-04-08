@@ -1,11 +1,11 @@
-import { Controller, Get, UseGuards, Param, SetMetadata } from '@nestjs/common';
+import { Controller, Get, UseGuards, Post, Req } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorator';
-import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/user/custom.guard';
 import Role from 'src/enum/role.enum';
 import { Roles } from './roles.decorator';
+import { Request } from 'express';
 
 @ApiTags('users')
 @UseGuards(AuthGuard)
@@ -22,6 +22,14 @@ export class UserController {
   @Get('me*w')
   async getCombination() {
     return 'meow';
+  }
+
+  @Post('hello')
+  @Roles(Role.User, Role.Admin)
+  async hello(@Req() req: Request) {
+    // console.log(req.body);
+    // console.log(req.user);
+    return req.user;
   }
 
   // @Get(':id')

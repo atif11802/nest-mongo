@@ -6,12 +6,19 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import Role from 'src/enum/role.enum';
+import { User } from 'src/model/user.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector, private jwtService: JwtService) {}
+  constructor(
+    private reflector: Reflector,
+    private jwtService: JwtService,
+    @InjectModel(User.name) private User: Model<User>,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     //what is the required role
@@ -19,8 +26,6 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    console.log('requiredRoles', requiredRoles);
 
     if (!requiredRoles) {
       return true;
@@ -38,17 +43,17 @@ export class RolesGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      console.log('payload', payload.role);
+
+      const user = await this.User.findById(payload._id).select('-password');
+
+      if (!user) {
+        throw new UnauthorizedException();
+      }
 
       return requiredRoles.some((role) => payload.role === role);
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
-
-    //does the current user  have the required role
-
-    return false;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
