@@ -1,18 +1,46 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
-export type UserDocument = HydratedDocument<User>;
+const offerSchema = new mongoose.Schema(
+  {
+    expire_date: {
+      type: Date,
+    },
+    message: {
+      type: String,
+      text: true,
+    },
+    attachment_url: {
+      type: String,
+    },
+    on_behalf: {
+      name: {
+        type: String,
+      },
+      position: {
+        type: String,
+      },
+    },
 
-@Schema()
-export class User {
-  @Prop()
-  name: string;
+    talent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'talent',
+    },
 
-  @Prop({ required: true })
-  email: string;
+    recruiter: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    },
 
-  @Prop({ required: true })
-  password: string;
-}
+    is_offer_accepted: {
+      type: String,
+      enum: ['accepted', 'rejected', 'pending'],
+      default: 'pending',
+    },
+  },
+  {
+    timestamps: true,
+    collection: 'offer',
+  },
+);
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export default mongoose.model('offer', offerSchema);
